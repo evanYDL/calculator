@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Calculator</title>
+    <script>
+function calculate() {
+    const expr = document.getElementById('expr').value;
+    fetch('/calc?expr=' + encodeURIComponent(expr))
+        .then(res => res.json())
+        .then(data => {
+            if (data.result !== undefined) {
+                document.getElementById('result').textContent = data.result;
+            } else {
+                document.getElementById('result').textContent = 'Error: ' + data.error;
+            }
+        })
+        .catch(err => {
+            document.getElementById('result').textContent = 'Error: ' + err;
+        });
+    return false;
+}
+    </script>
+</head>
+<body>
+    <h1>Calculator</h1>
+    <form onsubmit="return calculate();">
+        <input id="expr" type="text" placeholder="Enter expression" />
+        <button type="submit">Calculate</button>
+    </form>
+    <div id="result"></div>
+</body>
+</html>
