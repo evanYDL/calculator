@@ -3,31 +3,118 @@
 <head>
     <meta charset="utf-8">
     <title>Calculator</title>
+    <style>
+        body {
+            background-color: #ddd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: sans-serif;
+        }
+        #calc {
+            background: #444;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px #000;
+            width: 260px;
+        }
+        #display {
+            background: #b5ffaf;
+            color: #010;
+            font-family: "Courier New", monospace;
+            font-size: 20px;
+            padding: 10px;
+            height: 40px;
+            margin-bottom: 10px;
+            border: 2px inset #666;
+            overflow: hidden;
+        }
+        #keys {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 5px;
+        }
+        button {
+            padding: 10px;
+            font-size: 18px;
+            border: none;
+            background: #eee;
+            border-radius: 5px;
+            box-shadow: 0 2px #999;
+        }
+        button:active {
+            box-shadow: none;
+            position: relative;
+            top: 2px;
+        }
+        #result {
+            margin-top: 10px;
+            text-align: center;
+            font-weight: bold;
+            min-height: 1em;
+        }
+    </style>
     <script>
-function calculate() {
-    const expr = document.getElementById('expr').value;
-    fetch('/calc?expr=' + encodeURIComponent(expr))
-        .then(res => res.json())
-        .then(data => {
-            if (data.result !== undefined) {
-                document.getElementById('result').textContent = data.result;
-            } else {
-                document.getElementById('result').textContent = 'Error: ' + data.error;
-            }
-        })
-        .catch(err => {
-            document.getElementById('result').textContent = 'Error: ' + err;
-        });
-    return false;
-}
+        let expr = "";
+        function updateDisplay() {
+            document.getElementById('display').textContent = expr || "0";
+        }
+        function press(val) {
+            expr += val;
+            updateDisplay();
+        }
+        function clearDisplay() {
+            expr = "";
+            updateDisplay();
+            document.getElementById('result').textContent = "";
+        }
+        function calculate() {
+            fetch('/calc?expr=' + encodeURIComponent(expr))
+                .then(res => res.json())
+                .then(data => {
+                    if (data.result !== undefined) {
+                        document.getElementById('result').textContent = data.result;
+                        expr = String(data.result);
+                        updateDisplay();
+                    } else {
+                        document.getElementById('result').textContent = 'Error: ' + data.error;
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('result').textContent = 'Error: ' + err;
+                });
+        }
+        window.onload = updateDisplay;
     </script>
 </head>
 <body>
-    <h1>Calculator</h1>
-    <form onsubmit="return calculate();">
-        <input id="expr" type="text" placeholder="Enter expression" />
-        <button type="submit">Calculate</button>
-    </form>
-    <div id="result"></div>
+    <div id="calc">
+        <div id="display"></div>
+        <div id="keys">
+            <button onclick="press('7')">7</button>
+            <button onclick="press('8')">8</button>
+            <button onclick="press('9')">9</button>
+            <button onclick="press('/')">&divide;</button>
+            <button onclick="press('4')">4</button>
+            <button onclick="press('5')">5</button>
+            <button onclick="press('6')">6</button>
+            <button onclick="press('*')">&times;</button>
+            <button onclick="press('1')">1</button>
+            <button onclick="press('2')">2</button>
+            <button onclick="press('3')">3</button>
+            <button onclick="press('-')">-</button>
+            <button onclick="press('0')">0</button>
+            <button onclick="press('.')">.</button>
+            <button onclick="calculate()">Enter</button>
+            <button onclick="press('+')">+</button>
+            <button onclick="press('(')">(</button>
+            <button onclick="press(')')">)</button>
+            <button onclick="press('%')">%</button>
+            <button onclick="press('**')">^</button>
+            <button onclick="clearDisplay()" style="grid-column: span 4">Clear</button>
+        </div>
+        <div id="result"></div>
+    </div>
 </body>
 </html>
